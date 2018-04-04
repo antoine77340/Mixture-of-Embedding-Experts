@@ -18,7 +18,26 @@ code blabla
 
 ## Reproducing results on MPII dataset and MSRCTT dataset
 
-Blabla
+Downloading the data:
+
+```bash
+wget https://www.rocq.inria.fr/cluster-willow/amiech/ECCV18/data.zip
+unzip data.zip
+```
+
+
+Training on MSR-VTT:
+
+```bash
+python train.py --epochs=100 --batch_size=64 --lr=0.0004  --coco_sampling_rate=0.5 --MSRVTT=True
+```
+
+Training on MPII:
+
+```bash
+python train.py --epochs=50 --batch_size=512 --lr=0.0001  --coco=True
+```
+
 
 ## References
 
