@@ -43,21 +43,3 @@ class MaxMarginRankingLoss(nn.Module):
          
         max_margin = F.relu(self.margin - (x1 - x2))
         return max_margin.mean()
-
-class MaxMarginRankingLoss2(nn.Module):
-    def __init__(self, margin=1):
-        super(MaxMarginRankingLoss2, self).__init__()
-        self.margin = margin
-
-    #x : BatchxL
-    def forward(self,x):
-        x1 = x[:,0]
-        x1 = x1.unsqueeze(1)
-        x1 = x1.expand(x.size()[0],x.size()[-1]-1)
-
-        x2 = x[:,1:]
-       
-        max_margin = F.relu(self.margin - (x1 - x2))
-        return max_margin.mean()
-
- 
