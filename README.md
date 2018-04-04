@@ -51,6 +51,12 @@ Training on MPII:
 python train.py --epochs=50 --batch_size=512 --lr=0.0001  --coco=True
 ```
 
+## Web demo
+We implemented a small demo using our MEE model to perform Text-to-Video retrieval.
+You can try to search for any videos from the MPII (Test/Val) or MSRVTT dataset with your 
+own query. The model was trained on the MPII dataset.
+
+The demo is available at: willo-demo.inria.fr
 
 ## References
 
