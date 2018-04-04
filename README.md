@@ -1,20 +1,33 @@
 # Mixture-of-Embeddings-Experts
 
-BlaBla
+This github repo provides a Pytorch implementation of the Mixture-of-Embeddings-Models (MEE) [1].
 
 ## Usage example
 
-Creating a NetVLAD block:
+Creating an MEE block:
 
 ```python
-import loupe as lp
+from model import MEE
 
 '''
 coments
 '''
-code blabla
+mee_block = MEE()
 
 ```
+
+MEE forward pass:
+
+```python
+from model import MEE
+
+'''
+coments
+'''
+mee_block = MEE()
+
+```
+
 
 ## Reproducing results on MPII dataset and MSRCTT dataset
 
