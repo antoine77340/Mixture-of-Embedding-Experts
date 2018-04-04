@@ -10,26 +10,49 @@ Creating an MEE block:
 from model import MEE
 
 '''
-coments
+Initializig an MEE module
+Input:
+- video_modality_dim: dictionary of all video modality with input dimension and output embedding dimension.
+In this example: You have face modality (input dimension 128, output embedding dimension 128), 
+audio, visual and motion modalities as an example.
+- text_dim: dimensionality of sentence representation (e.g 1000)
+
 '''
-mee_block = MEE()
+
+video_modality_dim = {'face': (128,128), 'audio': (128*16,128),
+'visual': (2048,2048), 'motion': (1024,1024)}
+
+text_dim = 1000
+
+mee_block = MEE(video_modality_dim, text_dim)
 
 ```
 
 MEE forward pass:
 
 ```python
-from model import MEE
-
 '''
-coments
+Inputs:
+- captions: an Nx1000 input (N sentences, 1000 is the dimension of the sentences)
+- videos: a dictionary with the modalities input, for instance face_data is of size Nx128 or
+visual_data is of size Nx2048.
+- ind: ind provides binary list for each modality. 1 means the data modality is provided and 0 means the data is not provided.
+For instance, if the visual modality is provided for all N inputs then visual_ind = np.ones((N)).
+If the first half only are provided with the visual modality, then visual_ind = np.concatenate((np.ones((N/2)),np.zeros((N/2)), axis=0).
 '''
-mee_block = MEE()
 
+videos = {'face': face_data, 'audio': audio_data, 'visual': visual_data, 'motion': motion_data}
+ind = {'face': face_ind, 'audio': audio_ind, 'visual': visual_ind, 'motion': motion_ind}
+
+# Gives matrix scores
+matrix_result  = mee_block(captions, videos, ind, conf=True)
+
+# Gives pairwise scores
+pairwise_result = mee_block(captions, videos, ind, conf=False)
 ```
 
 
-## Reproducing results on MPII dataset and MSRCTT dataset
+## Reproducing results on MPII dataset and MSR-VTT dataset
 
 Downloading the data:
 
@@ -56,7 +79,7 @@ We implemented a small demo using our MEE model to perform Text-to-Video retriev
 You can try to search for any videos from the MPII (Test/Val) or MSRVTT dataset with your 
 own query. The model was trained on the MPII dataset.
 
-The demo is available at: willo-demo.inria.fr
+The demo is available at: http://willo-demo.inria.fr
 
 ## References
 
