@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-
 import torch as th
 from torch.utils.data import Dataset, DataLoader
 import LSMDC as LD2
@@ -68,9 +66,6 @@ parser.add_argument('--momentum', type=float, default=0.9,
 
 parser.add_argument('--eval_qcm', type=bool, default=False,
                             help='Eval or not QCM')
-
-parser.add_argument('--eval_coco', type=bool, default=False,
-                            help='Eval or not coco')
 
 parser.add_argument('--MSRVTT', type=bool, default=False,
                             help='MSRVTT')
@@ -229,8 +224,6 @@ dataset_size = len(dataset)
 lr_decay = args.lr_decay
 
 print 'Starting training loop ...'
-print 'Parameters: lr: %f, epochs: %d, seed: %d, batch_size: %d'%(args.lr,
-        args.epochs, th.initial_seed(), args.batch_size)
 
 for epoch in range(args.epochs):
     running_loss = 0.0
@@ -327,8 +320,8 @@ for epoch in range(args.epochs):
         
     net.train()
 
-    if args.eval_qcm:
-        print 'LSMDC Multiple-Choice evaluation (accuracy)'
+    if args.eval_qcm and not(args.MSRVTT):
+        print 'LSMDC Multiple-Choice evaluation computation'
         net.eval()
         scores = []
 
