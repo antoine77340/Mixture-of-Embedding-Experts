@@ -27,9 +27,7 @@ class MaxMarginRankingLoss(nn.Module):
 
     def forward(self,x):
         n = x.size()[0]
-        #y = Variable(th.ones(2*n**2,1).cuda())
-
-
+        
         x1 = th.diag(x)
         x1 = x1.unsqueeze(1)
         x1 = x1.expand(n, n)
