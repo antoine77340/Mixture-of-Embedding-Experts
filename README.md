@@ -1,6 +1,6 @@
 # Mixture-of-Embeddings-Experts
 
-This github repo provides a Pytorch implementation of the Mixture-of-Embeddings-Models (MEE) [1].
+This github repo provides a Pytorch implementation of the Mixture-of-Embeddings-Experts model (MEE) [1].
 
 ## Usage example
 
