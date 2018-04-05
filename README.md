@@ -79,7 +79,7 @@ We implemented a small demo using our MEE model to perform Text-to-Video retriev
 You can try to search for any videos from the MPII (Test/Val) or MSRVTT dataset with your 
 own query. The model was trained on the MPII dataset.
 
-The demo is available at: http://willo-demo.inria.fr
+The demo is available at: http://willow-demo.inria.fr
 
 ## References
 
