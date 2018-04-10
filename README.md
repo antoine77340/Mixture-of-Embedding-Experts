@@ -90,7 +90,7 @@ If you use this code, please cite the following paper:
 @article{miech18learning,
   title={Learning a {T}ext-{V}ideo {E}mbedding from {I}ncomplete and {H}eterogeneous Data},
   author={Miech, Antoine and Laptev, Ivan and Sivic, Josef},
-  journal={arXiv:},
+  journal={arXiv:1804.02516},
   year={2018},
 }
 ```
