@@ -85,10 +85,10 @@ The demo is available at: http://willow-demo.inria.fr
 
 If you use this code, please cite the following paper:
 
-[1] Antoine Miech and Ivan Laptev and Josef Sivic, Learning a Text-Video Embedding from Incomplete and Heterogeneous Data, arXiv::
+[1] Antoine Miech and Ivan Laptev and Josef Sivic, Learning a Text-Video Embedding from Incomplete and Heterogeneous Data, arXiv link: https://arxiv.org/abs/1804.02516
 ```
 @article{miech18learning,
-  title={Learning a {T}ext-{V}ideo {E}mbedding from {I}ncomplete and {H}eterogeneous Data},
+  title={Learning a {T}ext-{V}ideo {E}mbedding from {I}ncomplete and {H}eterogeneous {D}ata},
   author={Miech, Antoine and Laptev, Ivan and Sivic, Josef},
   journal={arXiv:1804.02516},
   year={2018},
