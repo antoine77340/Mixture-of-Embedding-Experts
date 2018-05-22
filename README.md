@@ -65,7 +65,7 @@ unzip data.zip
 Training on MSR-VTT:
 
 ```bash
-python train.py --epochs=100 --batch_size=64 --lr=0.0004  --coco_sampling_rate=0.5 --MSRVTT=True
+python train.py --epochs=100 --batch_size=64 --lr=0.0004  --coco_sampling_rate=0.5 --MSRVTT=True --coco=True
 ```
 
 Training on MPII:
