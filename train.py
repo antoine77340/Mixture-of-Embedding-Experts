@@ -145,7 +145,7 @@ if args.MSRVTT:
 
     dataset = MSR.MSRVTT(visual_feat_path, flow_feat_path, text_feat_path,
             audio_feat_path, face_feat_path, train_list_path,test_list_path, coco=args.coco) 
-    msr_sampler = MSRSampler(dataset.n_MSR,dataset.n_coco,args.coco_sampling_rate)
+    msr_sampler = MSRSampler(dataset.n_MSR,dataset.n_COCO,args.coco_sampling_rate)
     
     if args.coco:
         dataloader = DataLoader(dataset, batch_size=args.batch_size,
