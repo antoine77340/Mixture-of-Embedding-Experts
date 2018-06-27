@@ -25,7 +25,9 @@ import pickle
 class MSRVTT(Dataset):
     """LSMDC dataset."""
 
-    def __init__(self, visual_features, flow_features, text_features, audio_features, face_features, train_list, test_list, coco_visual_path='../X_train2014_resnet152.npy' ,coco_text_path='../w2v_coco_train2014_1.npy',coco=True, max_words=30,verbose=False):
+    def __init__(self, visual_features, flow_features, text_features, audio_features,
+            face_features, train_list, test_list, coco_visual_path='data/X_train2014_resnet152.npy',
+            coco_text_path='data/w2v_coco_train2014_1.npy',coco=True, max_words=30,verbose=False):
         """
         Args:
         """
@@ -74,6 +76,7 @@ class MSRVTT(Dataset):
         else:
             self.n_MSR = len(self.train_list)
             self.coco_ind = np.zeros((self.n_MSR))
+            self.n_coco = 0
  
 
         # computing retrieval
