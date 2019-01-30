@@ -2,6 +2,9 @@
 
 This github repo provides a Pytorch implementation of the Mixture-of-Embeddings-Experts model (MEE) [1].
 
+## Dependencies
+Python 2 and Pytorch 0.3
+
 ## Usage example
 
 Creating an MEE block:
