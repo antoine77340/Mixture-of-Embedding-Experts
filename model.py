@@ -88,10 +88,10 @@ class MEE(nn.Module):
         available_m = th.from_numpy(available_m).float()
         available_m = Variable(available_m.cuda())
 
-        moe_weights = available_m*moe_weights
+        moe_weights = available_m[None, :, :] * moe_weights[:, None, :]
 
-        norm_weights = th.sum(moe_weights, dim=1)
-        norm_weights = norm_weights.unsqueeze(1)
+        norm_weights = th.sum(moe_weights, dim=2)
+        norm_weights = norm_weights.unsqueeze(2)
         moe_weights = th.div(moe_weights, norm_weights)
 
         #MOE weights computation + normalization ------ DONE
@@ -101,7 +101,7 @@ class MEE(nn.Module):
             i = 0
             for m in video:
                 video[m] = video[m].transpose(0,1)
-                conf_matrix += moe_weights[:,i:i+1]*th.matmul(text_embd[m], video[m])
+                conf_matrix += moe_weights[:,:,i]*th.matmul(text_embd[m], video[m])
                 i += 1
 
             return conf_matrix
@@ -109,7 +109,7 @@ class MEE(nn.Module):
             i = 0
             scores = Variable(th.zeros(len(text)).cuda())
             for m in video:
-                text_embd[m] = moe_weights[:,i:i+1]*text_embd[m]*video[m]
+                text_embd[m] = moe_weights[:,:,i]*text_embd[m]*video[m]
                 scores += th.sum(text_embd[m], dim=-1)
                 i += 1
              
