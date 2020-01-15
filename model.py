@@ -45,6 +45,33 @@ class Net(nn.Module):
 
         return self.mee(text, aggregated_video, ind, conf)
 
+    def get_moe_scores(self, text):
+
+        text = self.text_pooling(text)
+
+        return self.mee.get_moe_scores(text)
+
+class Net2(nn.Module):
+    def __init__(self, embd_dim,  video_modality_dim, text_dim, gating=True, text_cluster=32):
+        super(Net2, self).__init__()
+        
+        self.text_pooling = NetVLAD(feature_size=text_dim,
+                cluster_size=text_cluster)
+        self.embd_text = Gated_Embedding_Unit(self.text_pooling.out_dim, embd_dim, gating=gating)
+        self.embd_video = Gated_Embedding_Unit(video_modality_dim, embd_dim,gating=gating)
+        self.audio_pooling = NetVLAD(feature_size=128, cluster_size=16)
+ 
+    def forward(self, text, video, conf=True):
+        video = th.cat((F.normalize(video['visual']), F.normalize(video['motion']), F.normalize(th.max(video['audio'], dim=1)[0])), dim=1)
+        text = self.text_pooling(text)
+        text = self.embd_text(text)
+        video = self.embd_video(video)
+        if conf:
+            return th.matmul(text, video.transpose(0, 1))
+        else:
+            return th.sum(text * video, dim=-1)
+
+
 
 class MEE(nn.Module):
     def __init__(self, video_modality_dim, text_dim):
@@ -62,6 +89,9 @@ class MEE(nn.Module):
 
         self.moe_fc = nn.Linear(text_dim, len(video_modality_dim))
     
+
+    def get_moe_scores(self, text):
+        return F.softmax(self.moe_fc(text), dim=1)
 
     def forward(self, text, video, ind, conf=True):
 
@@ -88,10 +118,10 @@ class MEE(nn.Module):
         available_m = th.from_numpy(available_m).float()
         available_m = Variable(available_m.cuda())
 
-        moe_weights = available_m*moe_weights
+        moe_weights = available_m[None, :, :] * moe_weights[:, None, :]
 
-        norm_weights = th.sum(moe_weights, dim=1)
-        norm_weights = norm_weights.unsqueeze(1)
+        norm_weights = th.sum(moe_weights, dim=2)
+        norm_weights = norm_weights.unsqueeze(2)
         moe_weights = th.div(moe_weights, norm_weights)
 
         #MOE weights computation + normalization ------ DONE
@@ -101,7 +131,7 @@ class MEE(nn.Module):
             i = 0
             for m in video:
                 video[m] = video[m].transpose(0,1)
-                conf_matrix += moe_weights[:,i:i+1]*th.matmul(text_embd[m], video[m])
+                conf_matrix += moe_weights[:,:,i]*th.matmul(text_embd[m], video[m])
                 i += 1
 
             return conf_matrix
@@ -109,23 +139,27 @@ class MEE(nn.Module):
             i = 0
             scores = Variable(th.zeros(len(text)).cuda())
             for m in video:
-                text_embd[m] = moe_weights[:,i:i+1]*text_embd[m]*video[m]
+                moe_scores = moe_weights[:,:,i]
+                moe_scores = th.diag(moe_scores) 
+                text_embd[m] = moe_scores[:, None] *text_embd[m]*video[m]
                 scores += th.sum(text_embd[m], dim=-1)
                 i += 1
              
             return scores
 
 class Gated_Embedding_Unit(nn.Module):
-    def __init__(self, input_dimension, output_dimension):
+    def __init__(self, input_dimension, output_dimension, gating=True):
         super(Gated_Embedding_Unit, self).__init__()
 
         self.fc = nn.Linear(input_dimension, output_dimension)
         self.cg = Context_Gating(output_dimension)
+        self.gating = gating
   
     def forward(self,x):
         
         x = self.fc(x)
-        x = self.cg(x)
+        if self.gating:
+            x = self.cg(x)
         x = F.normalize(x)
 
         return x
