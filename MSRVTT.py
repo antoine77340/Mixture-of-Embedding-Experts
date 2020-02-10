@@ -32,7 +32,7 @@ class MSRVTT(Dataset):
         Args:
         """
         self.max_words = max_words
-        print 'loading data ...'
+        print ('loading data ...')
 
         with open(train_list) as f:
             self.train_list = f.readlines()
@@ -111,7 +111,7 @@ class MSRVTT(Dataset):
         self.face_retrieval = th.from_numpy(self.face_retrieval).float()
         self.text_retrieval = th.from_numpy(self.text_retrieval).float()
         
-        print 'done'
+        print ('done')
 
     def collate_data(self, data):
         video_tensor = np.zeros((len(data), 2048))

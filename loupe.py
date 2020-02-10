@@ -60,7 +60,7 @@ class NetVLAD(nn.Module):
         vlad = F.normalize(vlad)
         
         # flattening + L2 norm
-        vlad = vlad.view(-1, self.cluster_size*self.feature_size)
+        vlad = vlad.reshape(-1, self.cluster_size*self.feature_size)
         vlad = F.normalize(vlad)
 
         return vlad
