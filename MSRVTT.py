@@ -26,13 +26,13 @@ class MSRVTT(Dataset):
     """LSMDC dataset."""
 
     def __init__(self, visual_features, flow_features, text_features, audio_features,
-            face_features, train_list, test_list, coco_visual_path='data/X_train2014_resnet152.npy',
-            coco_text_path='data/w2v_coco_train2014_1.npy',coco=True, max_words=30,verbose=False):
+            face_features, train_list, test_list, coco_visual_path='data/data/X_train2014_resnet152.npy',
+            coco_text_path='data/data/w2v_coco_train2014_1.npy',coco=True, max_words=30,verbose=False):
         """
         Args:
         """
         self.max_words = max_words
-        print 'loading data ...'
+        print ('loading data ...')
 
         with open(train_list) as f:
             self.train_list = f.readlines()
@@ -46,26 +46,26 @@ class MSRVTT(Dataset):
 
 
         pickle_in = open(visual_features,'rb')
-        self.visual_features = pickle.load(pickle_in)
+        self.visual_features = pickle.load(pickle_in, encoding='latin1')
   
         pickle_in = open(flow_features,'rb')
-        self.flow_features = pickle.load(pickle_in)
+        self.flow_features = pickle.load(pickle_in, encoding='latin1')
 
         pickle_in = open(audio_features,'rb')
-        self.audio_features = pickle.load(pickle_in)
+        self.audio_features = pickle.load(pickle_in, encoding='latin1')
 
         pickle_in = open(text_features,'rb')
-        self.text_features = pickle.load(pickle_in)
+        self.text_features = pickle.load(pickle_in, encoding='latin1')
 
         pickle_in = open(face_features,'rb')
-        self.face_features = pickle.load(pickle_in)
+        self.face_features = pickle.load(pickle_in, encoding='latin1')
 
         self.coco = coco
 
         if coco:
             # adding coco data
             self.coco_visual = np.load(coco_visual_path)
-            self.coco_text = np.load(coco_text_path)
+            self.coco_text = np.load(coco_text_path, encoding='latin1')
             
             self.n_MSR = len(self.train_list)
             self.n_coco = len(self.coco_visual)
@@ -111,7 +111,7 @@ class MSRVTT(Dataset):
         self.face_retrieval = th.from_numpy(self.face_retrieval).float()
         self.text_retrieval = th.from_numpy(self.text_retrieval).float()
         
-        print 'done'
+        print ('done')
 
     def collate_data(self, data):
         video_tensor = np.zeros((len(data), 2048))

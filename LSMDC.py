@@ -13,18 +13,21 @@
 # limitations under the License.
 
 
-
 import torch as th
 from torch.utils.data import Dataset
-import numpy as np 
-import os    
-import math    
+import numpy as np
+import os
+import math
 import random
+
 
 class LSMDC(Dataset):
     """LSMDC dataset."""
 
-    def __init__(self, clip_path, text_features, audio_features, flow_path, face_path, coco_visual_path='../X_train2014_resnet152.npy' ,coco_text_path='../w2v_coco_train2014_1.npy', coco=True, max_words=30, video_features_size=2048, text_features_size=300, audio_features_size=128, face_features_size=128, flow_features_size=1024,verbose=False):
+    def __init__(self, clip_path, text_features, audio_features, flow_path, face_path,
+                 coco_visual_path='../X_train2014_resnet152.npy', coco_text_path='../w2v_coco_train2014_1.npy',
+                 coco=True, max_words=30, video_features_size=2048, text_features_size=300, audio_features_size=128,
+                 face_features_size=128, flow_features_size=1024, verbose=False):
         """
         Args:
         """
@@ -32,11 +35,10 @@ class LSMDC(Dataset):
         self.visual_features = np.load(clip_path)
         self.flow_features = np.load(flow_path)
         self.face_features = np.load(face_path)
-        self.audio_features = np.load(audio_features)
-        self.text_features = np.load(text_features)
-        
+        self.audio_features = np.load(audio_features, encoding='latin1')
+        self.text_features = np.load(text_features, encoding='latin1')
 
-        audio_sizes = map(len,self.audio_features)
+        audio_sizes = list(map(len, self.audio_features))
         self.audio_sizes = np.array(audio_sizes)
 
         self.video_features_size = video_features_size
@@ -44,13 +46,13 @@ class LSMDC(Dataset):
         self.audio_features_size = audio_features_size
         self.flow_features_size = flow_features_size
         self.face_features_size = face_features_size
-        
+
         self.max_len_text = max_words
-        
-        text_sizes = map(len,self.text_features)
+
+        text_sizes = list(map(len, self.text_features))
         self.text_sizes = np.array(text_sizes)
         self.text_sizes = self.text_sizes.astype(int)
-        
+
         mask = self.text_sizes > 0
 
         self.text_features = self.text_features[mask]
@@ -60,49 +62,45 @@ class LSMDC(Dataset):
         self.face_features = self.face_features[mask]
         self.audio_features = self.audio_features[mask]
         self.audio_sizes = self.audio_sizes[mask]
-        self.audio_sizes.astype(int) 
-        
+        self.audio_sizes.astype(int)
+
         self.max_len_audio = max(self.audio_sizes)
-       
+
         audio_tensors = np.zeros((len(self.audio_features),
-                        max(self.audio_sizes), self.audio_features[0].shape[1]))
+                                  max(self.audio_sizes), self.audio_features[0].shape[1]))
 
         for j in range(len(self.audio_features)):
-            audio_tensors[j,0:self.audio_sizes[j],:] = self.audio_features[j]
-        
+            audio_tensors[j, 0:self.audio_sizes[j], :] = self.audio_features[j]
 
         if coco:
             # adding coco data
             coco_visual = np.load(coco_visual_path)
             coco_text = np.load(coco_text_path)
-            
 
             self.n_lsmdc = len(self.visual_features)
             self.n_coco = len(coco_visual)
-           
+
             self.visual_features = np.concatenate((self.visual_features, coco_visual), axis=0)
             self.text_features = np.concatenate((self.text_features, coco_text), axis=0)
 
-            text_sizes = map(len,self.text_features)
+            text_sizes = list(map(len, self.text_features))
             self.text_sizes = np.array(text_sizes)
             self.text_sizes = self.text_sizes.astype(int)
-            self.coco_ind = np.zeros((self.n_lsmdc+self.n_coco))
+            self.coco_ind = np.zeros((self.n_lsmdc + self.n_coco))
             self.coco_ind[self.n_lsmdc:] = 1
         else:
             self.n_lsmdc = len(self.visual_features)
             self.coco_ind = np.zeros((self.n_lsmdc))
 
-      
         text_tensors = np.zeros((len(self.text_features),
-                        max_words, self.text_features[0].shape[1]))
-
+                                 max_words, self.text_features[0].shape[1]))
 
         for j in range(len(self.text_features)):
-            if self.text_sizes[j] > max_words:                
-                text_tensors[j] = self.text_features[j][0:max_words,:]
+            if self.text_sizes[j] > max_words:
+                text_tensors[j] = self.text_features[j][0:max_words, :]
             else:
-                text_tensors[j,0:self.text_sizes[j],:] = self.text_features[j] 
-                
+                text_tensors[j, 0:self.text_sizes[j], :] = self.text_features[j]
+
         self.text_features = th.from_numpy(text_tensors)
         self.text_features = self.text_features.float()
 
@@ -117,7 +115,7 @@ class LSMDC(Dataset):
 
         self.face_features = th.from_numpy(self.face_features)
         self.face_features = self.face_features.float()
-        
+
     def __len__(self):
         return len(self.text_features)
 
@@ -128,7 +126,7 @@ class LSMDC(Dataset):
         if idx >= self.n_lsmdc:
             flow = th.zeros(self.flow_features_size)
             face = th.zeros(self.face_features_size)
-            audio = th.zeros(self.audio_features.size()[1],self.audio_features_size)
+            audio = th.zeros(self.audio_features.size()[1], self.audio_features_size)
             audio_size = 1
             face_ind = 0
         else:
@@ -139,7 +137,7 @@ class LSMDC(Dataset):
 
             if th.sum(face) == 0:
                 face_ind = 0
-        return {'video': self.visual_features[idx], 
+        return {'video': self.visual_features[idx],
                 'flow': flow,
                 'face': face,
                 'text': self.text_features[idx],
@@ -150,27 +148,32 @@ class LSMDC(Dataset):
                 'text_size': self.text_sizes[idx]
                 }
 
-
     def getVideoFeatureSize(self):
         return self.video_features_size
+
     def getTextFeatureSize(self):
         return self.text_features_size
+
     def getAudioFeatureSize(self):
         return self.audio_features_size
+
     def getFlowFeatureSize(self):
         return self.flow_features_size
+
     def getText(self):
         return self.text_features
- 
 
-    def shorteningTextTensor(self,text_features, text_sizes):
+    def shorteningTextTensor(self, text_features, text_sizes):
         m = int(max(text_sizes))
-        return text_features[:,0:m,:]
+        return text_features[:, 0:m, :]
+
 
 class LSMDC_qcm(Dataset):
     """LSMDC dataset."""
 
-    def __init__(self, clip_path, text_features, audio_features, flow_path, face_path, max_words=30, video_features_size=2048, text_features_size=300, audio_features_size=128, face_features_size=128, flow_features_size=1024):
+    def __init__(self, clip_path, text_features, audio_features, flow_path, face_path, max_words=30,
+                 video_features_size=2048, text_features_size=300, audio_features_size=128, face_features_size=128,
+                 flow_features_size=1024):
         """
         Args:
         """
@@ -179,9 +182,9 @@ class LSMDC_qcm(Dataset):
         self.face_features = np.load(face_path)
         self.audio_features = np.load(audio_features)
         self.text_features = np.load(text_features)
-        print 'features loaded'
+        print('features loaded')
 
-        audio_sizes = map(len,self.audio_features)
+        audio_sizes = list(map(len, self.audio_features))
         self.audio_sizes = np.array(audio_sizes)
 
         self.video_features_size = video_features_size
@@ -189,33 +192,30 @@ class LSMDC_qcm(Dataset):
         self.audio_features_size = audio_features_size
         self.flow_features_size = flow_features_size
         self.face_features_size = face_features_size
-        
+
         self.max_len_text = max_words
-        
-        text_sizes = map(len,self.text_features)
+
+        text_sizes = list(map(len, self.text_features))
         self.text_sizes = np.array(text_sizes)
         self.text_sizes = self.text_sizes.astype(int)
-        
-       
+
         self.max_len_audio = max(self.audio_sizes)
-        
 
         audio_tensors = np.zeros((len(self.audio_features),
-                        max(self.audio_sizes), self.audio_features[0].shape[1]))
+                                  max(self.audio_sizes), self.audio_features[0].shape[1]))
 
         for j in range(len(self.audio_features)):
-            audio_tensors[j,0:self.audio_sizes[j],:] = self.audio_features[j]
+            audio_tensors[j, 0:self.audio_sizes[j], :] = self.audio_features[j]
 
         text_tensors = np.zeros((len(self.text_features),
-                        max_words, self.text_features[0].shape[1]))
-
+                                 max_words, self.text_features[0].shape[1]))
 
         for j in range(len(self.text_features)):
-            if self.text_sizes[j] > max_words:                
-                text_tensors[j] = self.text_features[j][0:max_words,:]
+            if self.text_sizes[j] > max_words:
+                text_tensors[j] = self.text_features[j][0:max_words, :]
             else:
-                text_tensors[j,0:self.text_sizes[j],:] = self.text_features[j] 
-                
+                text_tensors[j, 0:self.text_sizes[j], :] = self.text_features[j]
+
         self.text_features = th.from_numpy(text_tensors)
         self.text_features = self.text_features.float()
 
@@ -231,14 +231,11 @@ class LSMDC_qcm(Dataset):
         self.face_features = th.from_numpy(self.face_features)
         self.face_features = self.face_features.float()
 
-
     def __len__(self):
         return len(self.visual_features)
-    
-
 
     def __getitem__(self, tidx):
-    
+
         idx, idx2 = tidx
 
         face_ind = 1
@@ -251,7 +248,7 @@ class LSMDC_qcm(Dataset):
         if th.sum(face) == 0:
             face_ind = 0
 
-        return {'video': self.visual_features[idx], 
+        return {'video': self.visual_features[idx],
                 'flow': flow,
                 'face': face,
                 'text': self.text_features[idx2],
@@ -261,18 +258,18 @@ class LSMDC_qcm(Dataset):
                 'text_size': self.text_sizes[idx2]
                 }
 
-
     def getVideoFeatureSize(self):
         return self.video_features_size
+
     def getTextFeatureSize(self):
         return self.text_features_size
+
     def getAudioFeatureSize(self):
         return self.audio_features_size
+
     def getFlowFeatureSize(self):
         return self.flow_features_size
 
-
-    def shorteningTextTensor(self,text_features, text_sizes):
+    def shorteningTextTensor(self, text_features, text_sizes):
         m = int(max(text_sizes))
-        return text_features[:,0:m,:]
-
+        return text_features[:, 0:m, :]

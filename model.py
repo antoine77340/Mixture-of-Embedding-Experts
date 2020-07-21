@@ -77,7 +77,7 @@ class MEE(nn.Module):
     def __init__(self, video_modality_dim, text_dim):
         super(MEE, self).__init__()
 
-        m = video_modality_dim.keys()
+        m = list(video_modality_dim.keys())
 
         self.m = m
         
